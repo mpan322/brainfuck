@@ -34,8 +34,15 @@ fn is_valid_char(char: u8) -> bool {
     };
 }
 
+fn string_to_vec(s: &str) -> Vec<u8> {
+    let mut v = Vec::new();
+    s.chars().for_each(|c| v.push(c as u8));
+    return v;
+}
+
 impl Tokenizer {
-    pub fn new(input: Vec<u8>) -> Tokenizer {
+    pub fn new(input: &str) -> Tokenizer {
+        let input = string_to_vec(input);
         let next = input.get(0);
         let next = match next {
             None => 0,
@@ -78,10 +85,6 @@ impl Tokenizer {
             // once a valid character is found, or the end of the input is reached, break out of the loop
             break;
         }
-        println!(
-            "curr: {}, next: {}, done: {}",
-            self.curr as char, self.next as char, self.done
-        );
         return self.done;
     }
 }
@@ -130,15 +133,9 @@ impl Iterator for Tokenizer {
 mod tests {
     use super::*;
 
-    fn string_to_vec(s: &str) -> Vec<u8> {
-        let mut v = Vec::new();
-        s.chars().for_each(|c| v.push(c as u8));
-        return v;
-    }
-
     #[test]
     fn test_basic() {
-        let mut tokenizer = Tokenizer::new(string_to_vec(".-+><[],"));
+        let mut tokenizer = Tokenizer::new(".-+><[],");
         let expected = vec![
             Token::Output,
             Token::Dec(1),
@@ -162,7 +159,7 @@ mod tests {
 
     #[test]
     fn test_repeatable() {
-        let mut tokenizer = Tokenizer::new(string_to_vec("+-->>><<<<"));
+        let mut tokenizer = Tokenizer::new("+-->>><<<<");
         let expected = vec![
             Token::Inc(1),
             Token::Dec(2),
@@ -182,10 +179,8 @@ mod tests {
 
     #[test]
     fn test_repeatable_start() {
-        let mut tokenizer = Tokenizer::new(string_to_vec("++++"));
-        let expected = vec![
-            Token::Inc(4),
-        ];
+        let mut tokenizer = Tokenizer::new("++++");
+        let expected = vec![Token::Inc(4)];
 
         for result in expected.iter() {
             let token = tokenizer.next();
@@ -199,7 +194,7 @@ mod tests {
 
     #[test]
     fn test_end_input() {
-        let mut tokenizer = Tokenizer::new(string_to_vec("++++."));
+        let mut tokenizer = Tokenizer::new("++++.");
         tokenizer.next();
         tokenizer.next();
         let token = tokenizer.next();
