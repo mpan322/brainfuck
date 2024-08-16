@@ -7,8 +7,8 @@ pub enum Token {
     Dec(u32),
     IncDP(usize),
     DecDP(usize),
-    LBrack,
-    RBrack,
+    LBrack(usize),
+    RBrack(usize),
     Output,
     Input,
 }
@@ -68,6 +68,7 @@ impl Tokenizer {
                 Some(v) => {
                     // skip over invalid characters
                     if !is_valid_char(*v) {
+                        self.idx += 1;
                         continue;
                     }
                     self.curr = self.next;
@@ -87,6 +88,11 @@ impl Tokenizer {
         }
         return self.done;
     }
+
+
+    pub fn tokenize(&mut self) -> Vec<Token> {
+        self.collect()
+    }
 }
 
 impl Iterator for Tokenizer {
@@ -99,6 +105,7 @@ impl Iterator for Tokenizer {
             return None;
         }
         let char = self.curr;
+        println!("curr: {:?}, next: {:?}", self.curr as char, self.next as char);
 
         // condense sequences of characters which are repeatable into 1 token
         if is_repeatable(char) {
@@ -119,8 +126,8 @@ impl Iterator for Tokenizer {
 
         // handle other tokens
         let token = match char {
-            b'[' => Token::LBrack,
-            b']' => Token::RBrack,
+            b'[' => Token::LBrack(usize::MAX), // TODO: better default value
+            b']' => Token::RBrack(usize::MAX),
             b',' => Token::Input,
             b'.' => Token::Output,
             _ => panic!("Unexpected character {} when tokenizing", char),
@@ -142,8 +149,8 @@ mod tests {
             Token::Inc(1),
             Token::IncDP(1),
             Token::DecDP(1),
-            Token::LBrack,
-            Token::RBrack,
+            Token::LBrack(usize::MAX),
+            Token::RBrack(usize::MAX),
             Token::Input,
         ];
 
