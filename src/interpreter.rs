@@ -49,13 +49,13 @@ impl Interpreter {
                         self.ip = *n;
                         self.ip -= 1;
                     }
-                },
+                }
                 Token::RBrack(n) => {
                     if self.read_memory() != 0 {
                         self.ip = *n;
                         self.ip -= 1;
                     }
-                },
+                }
                 Token::IncDP(n) => self.dp += n,
                 Token::DecDP(n) => self.dp -= n,
             }
@@ -68,14 +68,13 @@ impl Interpreter {
 
 #[cfg(test)]
 mod tests {
-    use crate::{tokens::Tokenizer, tokens2::add_jumps};
+    use crate::tokens::Tokenizer;
 
     use super::*;
 
     #[test]
     fn test_add() {
-        let mut tokens = Tokenizer::new("+++").tokenize();
-        add_jumps(&mut tokens);
+        let tokens = Tokenizer::new("+++").tokenize();
         let mut interpreter = Interpreter::new(30, tokens);
         interpreter.exec();
         assert_eq!(interpreter.memory[0], 3);
@@ -83,8 +82,7 @@ mod tests {
 
     #[test]
     fn test_sub() {
-        let mut tokens = Tokenizer::new("---").tokenize();
-        add_jumps(&mut tokens);
+        let tokens = Tokenizer::new("---").tokenize();
         let mut interpreter = Interpreter::new(30, tokens);
         interpreter.exec();
         assert_eq!(interpreter.memory[0], 253);
@@ -92,8 +90,7 @@ mod tests {
 
     #[test]
     fn test_move_dp_right() {
-        let mut tokens = Tokenizer::new("+++>++>+").tokenize();
-        add_jumps(&mut tokens);
+        let tokens = Tokenizer::new("+++>++>+").tokenize();
         let mut interpreter = Interpreter::new(30, tokens);
         interpreter.exec();
         assert_eq!(interpreter.memory[0], 3);
@@ -103,8 +100,7 @@ mod tests {
 
     #[test]
     fn test_move_dp_left() {
-        let mut tokens = Tokenizer::new("++>+<-").tokenize();
-        add_jumps(&mut tokens);
+        let tokens = Tokenizer::new("++>+<-").tokenize();
         let mut interpreter = Interpreter::new(30, tokens);
         interpreter.exec();
         assert_eq!(interpreter.memory[0], 1);
@@ -113,8 +109,7 @@ mod tests {
 
     #[test]
     fn test_loop() {
-        let mut tokens = Tokenizer::new(">>>-<<<+[>+]").tokenize();
-        add_jumps(&mut tokens);
+        let tokens = Tokenizer::new(">>>-<<<+[>+]").tokenize();
         let mut interpreter = Interpreter::new(30, tokens);
         interpreter.exec();
         assert_eq!(interpreter.memory[0], 1);
@@ -125,8 +120,7 @@ mod tests {
 
     #[test]
     fn test_jump_past() {
-        let mut tokens = Tokenizer::new(">>>-<<<[>+]++").tokenize();
-        add_jumps(&mut tokens);
+        let tokens = Tokenizer::new(">>>-<<<[>+]++").tokenize();
         let mut interpreter = Interpreter::new(30, tokens);
         interpreter.exec();
         assert_eq!(interpreter.memory[0], 2);
@@ -137,8 +131,7 @@ mod tests {
 
     #[test]
     fn test_jump_past_2() {
-        let mut tokens = Tokenizer::new("[]++").tokenize();
-        add_jumps(&mut tokens);
+        let tokens = Tokenizer::new("[]++").tokenize();
         let mut interpreter = Interpreter::new(30, tokens);
         interpreter.exec();
         assert_eq!(interpreter.memory[0], 2);

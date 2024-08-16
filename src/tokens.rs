@@ -41,6 +41,29 @@ fn string_to_vec(s: &str) -> Vec<u8> {
 }
 
 impl Tokenizer {
+    fn add_jumps(tokens: &mut Vec<Token>) -> () {
+        let mut stack = Vec::new();
+        for (i, token) in tokens.iter_mut().enumerate() {
+            match *token {
+                Token::LBrack(_) => stack.push((token, i)),
+                Token::RBrack(_) => {
+                    let paired = stack.pop();
+                    let (corr, idx) = match paired {
+                        Some(v) => v,
+                        None => panic!("Unblanced brackets - too many closing brackets"),
+                    };
+                    *corr = Token::LBrack(i + 1);
+                    *token = Token::RBrack(idx);
+                }
+                _ => (),
+            }
+        }
+
+        if stack.len() > 0 {
+            panic!("Unbalanced brackets - too many opening brackets");
+        }
+    }
+
     pub fn new(input: &str) -> Tokenizer {
         let input = string_to_vec(input);
         let next = input.get(0);
@@ -89,9 +112,10 @@ impl Tokenizer {
         return self.done;
     }
 
-
     pub fn tokenize(&mut self) -> Vec<Token> {
-        self.collect()
+        let mut tokens = self.collect();
+        Tokenizer::add_jumps(&mut tokens);
+        return tokens;
     }
 }
 
@@ -105,7 +129,10 @@ impl Iterator for Tokenizer {
             return None;
         }
         let char = self.curr;
-        println!("curr: {:?}, next: {:?}", self.curr as char, self.next as char);
+        println!(
+            "curr: {:?}, next: {:?}",
+            self.curr as char, self.next as char
+        );
 
         // condense sequences of characters which are repeatable into 1 token
         if is_repeatable(char) {
@@ -208,5 +235,32 @@ mod tests {
         assert_eq!(token, None);
         let token = tokenizer.next();
         assert_eq!(token, None);
+    }
+
+    #[test]
+    fn test_basic_jumps() {
+        let tokens = Tokenizer::new("[+-]").tokenize();
+        assert_eq!(tokens[0], Token::LBrack(4));
+        assert_eq!(tokens[1], Token::Inc(1));
+        assert_eq!(tokens[2], Token::Dec(1));
+        assert_eq!(tokens[3], Token::RBrack(0));
+    }
+    #[test]
+    fn test_adjacet() {
+        let tokens = Tokenizer::new("[]").tokenize();
+        assert_eq!(tokens[0], Token::LBrack(2));
+        assert_eq!(tokens[1], Token::RBrack(0));
+    }
+    #[test]
+    fn test_nesting() {
+        let tokens = Tokenizer::new("[[][[]]]").tokenize();
+        assert_eq!(tokens[0], Token::LBrack(8));
+        assert_eq!(tokens[1], Token::LBrack(3));
+        assert_eq!(tokens[2], Token::RBrack(1));
+        assert_eq!(tokens[3], Token::LBrack(7));
+        assert_eq!(tokens[4], Token::LBrack(6));
+        assert_eq!(tokens[5], Token::RBrack(4));
+        assert_eq!(tokens[6], Token::RBrack(3));
+        assert_eq!(tokens[7], Token::RBrack(0));
     }
 }
