@@ -3,6 +3,7 @@ use std::{fs::File, io::Read, path::Path, process::exit};
 
 mod interpreter;
 mod tokens;
+mod compiler;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -30,6 +31,7 @@ fn main() {
     }
 
     let tokens = tokens::Tokenizer::new(&str).tokenize();
-    let mut interpreter = interpreter::Interpreter::new(1000, tokens);
-    interpreter.exec();
+    // let mut interpreter = interpreter::Interpreter::new(1000, tokens);
+    // interpreter.exec();
+    compiler::compile(tokens, 10);
 }
