@@ -129,10 +129,6 @@ impl Iterator for Tokenizer {
             return None;
         }
         let char = self.curr;
-        println!(
-            "curr: {:?}, next: {:?}",
-            self.curr as char, self.next as char
-        );
 
         // condense sequences of characters which are repeatable into 1 token
         if is_repeatable(char) {
