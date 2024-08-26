@@ -1,18 +1,28 @@
+use clap::Parser;
 use core::panic;
 use std::{fs::File, io::Read, path::Path, process::exit};
 
+mod compiler;
 mod interpreter;
 mod tokens;
-mod compiler;
+
+/// Simple program to greet a person
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// Path to the file to compile
+    #[arg(short, long)]
+    path: String,
+
+    /// Whether to compile the program
+    #[arg(short, long, default_value_t = false)]
+    compile: bool,
+}
 
 fn main() {
-    let args: Vec<String> = std::env::args().collect();
-    if args.len() < 2 {
-        println!("Usage: <binary> <path to file>.");
-        exit(1);
-    }
+    let args = Args::parse();
 
-    let path_str = &args[1];
+    let path_str = &args.path;
     let path = Path::new(path_str);
     if !path.is_file() {
         println!("Input must be the path to a file.");
@@ -31,7 +41,11 @@ fn main() {
     }
 
     let tokens = tokens::Tokenizer::new(&str).tokenize();
-    // let mut interpreter = interpreter::Interpreter::new(1000, tokens);
-    // interpreter.exec();
-    compiler::compile(tokens, 10);
+
+    if args.compile {
+        compiler::compile(tokens, 10);
+    } else {
+        let mut interpreter = interpreter::Interpreter::new(1000, tokens);
+        interpreter.exec();
+    }
 }
