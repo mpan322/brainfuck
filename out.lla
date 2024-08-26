@@ -1,0 +1,78 @@
+[i8 x 10]
+; increment the value
+%2 = load i8, ptr %1
+%3 = add i8 10, ptr %2
+store i8 %3, ptr %1
+; add to data pointer
+%4 = getelementptr [i8 x 10], ptr %1, i64 0, i32 1 ; inc dp; increment the value
+%5 = load i8, ptr %2
+%6 = add i8 7, ptr %5
+store i8 %6, ptr %2
+; add to data pointer
+%7 = getelementptr [i8 x 10], ptr %2, i64 0, i32 1 ; inc dp; increment the value
+%8 = load i8, ptr %3
+%9 = add i8 10, ptr %8
+store i8 %9, ptr %3
+; add to data pointer
+%10 = getelementptr [i8 x 10], ptr %3, i64 0, i32 1 ; inc dp; increment the value
+%11 = load i8, ptr %4
+%12 = add i8 3, ptr %11
+store i8 %12, ptr %4
+; add to data pointer
+%13 = getelementptr [i8 x 10], ptr %4, i64 0, i32 1 ; inc dp; increment the value
+%14 = load i8, ptr %5
+%15 = add i8 1, ptr %14
+store i8 %15, ptr %5
+; subtract from data pointer
+%16 = getelementptr [i8 x 10], ptr %5, i64 0, i32 -4 ; inc dp; decrement the value
+%17 = load i8, ptr %1
+%18 = sub i8 1, ptr %17
+store i8 %18, ptr %1
+; add to data pointer
+%19 = getelementptr [i8 x 10], ptr %1, i64 0, i32 1 ; inc dp; increment the value
+%20 = load i8, ptr %2
+%21 = add i8 2, ptr %20
+store i8 %21, ptr %2
+; add to data pointer
+%22 = getelementptr [i8 x 10], ptr %2, i64 0, i32 1 ; inc dp; increment the value
+%23 = load i8, ptr %3
+%24 = add i8 1, ptr %23
+store i8 %24, ptr %3
+; increment the value
+%25 = load i8, ptr %3
+%26 = add i8 7, ptr %25
+store i8 %26, ptr %3
+; increment the value
+%27 = load i8, ptr %3
+%28 = add i8 3, ptr %27
+store i8 %28, ptr %3
+; add to data pointer
+%29 = getelementptr [i8 x 10], ptr %3, i64 0, i32 1 ; inc dp; increment the value
+%30 = load i8, ptr %4
+%31 = add i8 2, ptr %30
+store i8 %31, ptr %4
+; subtract from data pointer
+%32 = getelementptr [i8 x 10], ptr %4, i64 0, i32 -2 ; inc dp; increment the value
+%33 = load i8, ptr %2
+%34 = add i8 15, ptr %33
+store i8 %34, ptr %2
+; add to data pointer
+%35 = getelementptr [i8 x 10], ptr %2, i64 0, i32 1 ; inc dp; increment the value
+%36 = load i8, ptr %3
+%37 = add i8 3, ptr %36
+store i8 %37, ptr %3
+; decrement the value
+%38 = load i8, ptr %3
+%39 = sub i8 6, ptr %38
+store i8 %39, ptr %3
+; decrement the value
+%40 = load i8, ptr %3
+%41 = sub i8 8, ptr %40
+store i8 %41, ptr %3
+; add to data pointer
+%42 = getelementptr [i8 x 10], ptr %3, i64 0, i32 1 ; inc dp; increment the value
+%43 = load i8, ptr %4
+%44 = add i8 1, ptr %43
+store i8 %44, ptr %4
+; add to data pointer
+%45 = getelementptr [i8 x 10], ptr %4, i64 0, i32 1 ; inc dp
