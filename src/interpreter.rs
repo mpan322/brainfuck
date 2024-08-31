@@ -1,4 +1,7 @@
-use std::usize;
+use std::{
+    io::{self, Read},
+    usize,
+};
 
 use crate::tokens::Token;
 
@@ -10,6 +13,9 @@ pub struct Interpreter {
 }
 
 impl Interpreter {
+    fn set_memory(&mut self, value: u8) {
+        self.memory[self.dp] = value;
+    }
     fn read_memory(&self) -> u8 {
         return self.memory[self.dp];
     }
@@ -37,10 +43,14 @@ impl Interpreter {
                 Some(v) => v,
                 None => panic!("Critical error: attempted to access a token which does not exist"),
             };
-            // println!("{:?} {:?} -> {:?}", self.ip, token, self.dp);
 
             match token {
-                Token::Input => todo!(),
+                Token::Input => {
+                    let mut buff: [u8; 1] = [0];
+                    while io::stdin().read_exact(&mut buff).is_err() {
+                    }
+                    self.set_memory(buff[0]);
+                }
                 Token::Output => print!("{}", self.read_memory() as char),
                 Token::Inc(n) => self.add_memory(*n),
                 Token::Dec(n) => self.sub_memory(*n),
@@ -61,8 +71,6 @@ impl Interpreter {
             }
             self.ip += 1;
         }
-        // println!("{:?}", self.memory);
-        // println!("{:?}", self.ip);
     }
 }
 

@@ -1,9 +1,7 @@
 use crate::tokens::Token;
 
-pub fn compile(tokens: Vec<Token>, mem_size: u32) {
+pub fn compile(tokens: Vec<Token>, mem_size: u32) -> String {
     let buff_str = format!("[{:?} x i8]", mem_size);
-    // println!("{:?}", tokens);
-
     let mut result = String::new();
 
     // setup buffers / llvm
@@ -26,10 +24,7 @@ pub fn compile(tokens: Vec<Token>, mem_size: u32) {
                 // load at data_ptr -> add -> store back at data_ptr
                 result.push_str("\n; increment the value\n");
                 result.push_str(&format!("%{:?} = load i8, ptr %{:?}\n", var_1, data_ptr));
-                result.push_str(&format!(
-                    "%{:?} = add i8 %{:?}, {:?}\n",
-                    var_2, var_1, n
-                ));
+                result.push_str(&format!("%{:?} = add i8 %{:?}, {:?}\n", var_2, var_1, n));
                 result.push_str(&format!("store i8 %{:?}, ptr %{:?}\n", var_2, data_ptr));
 
                 var_count += 2;
@@ -41,10 +36,7 @@ pub fn compile(tokens: Vec<Token>, mem_size: u32) {
                 // load at data_ptr -> sub -> store back at data_ptr
                 result.push_str("\n; decrement the value\n");
                 result.push_str(&format!("%{:?} = load i8, ptr %{:?}\n", var_1, data_ptr));
-                result.push_str(&format!(
-                    "%{:?} = sub i8 %{:?}, {:?}\n",
-                    var_2, var_1, n
-                ));
+                result.push_str(&format!("%{:?} = sub i8 %{:?}, {:?}\n", var_2, var_1, n));
                 result.push_str(&format!("store i8 %{:?}, ptr %{:?}\n", var_2, data_ptr));
 
                 var_count += 2;
@@ -82,7 +74,12 @@ pub fn compile(tokens: Vec<Token>, mem_size: u32) {
                 result.push_str(&format!("\n\nloop_open_{:?}:", instr_count));
                 result.push_str(&format!("\n%{:?} = load i8, ptr %{:?}", var_1, data_ptr));
                 result.push_str(&format!("\n%{:?} = icmp eq i8 %{:?}, 0", var_2, var_1));
-                result.push_str(&format!("\nbr i1 %{:?}, label %loop_end_{:?}, label %loop_body_{:?}", var_2, n - 1, instr_count));
+                result.push_str(&format!(
+                    "\nbr i1 %{:?}, label %loop_end_{:?}, label %loop_body_{:?}",
+                    var_2,
+                    n - 1,
+                    instr_count
+                ));
                 result.push_str(&format!("\n\nloop_body_{:?}:", instr_count));
 
                 var_count += 2;
@@ -93,9 +90,12 @@ pub fn compile(tokens: Vec<Token>, mem_size: u32) {
 
                 result.push_str(&format!("\n%{:?} = load i8, ptr %{:?}", var_1, data_ptr));
                 result.push_str(&format!("\n%{:?} = icmp ne i8 %{:?}, 0", var_2, var_1));
-                result.push_str(&format!("\nbr i1 %{:?}, label %loop_body_{:?}, label %loop_end_{:?}", var_2, n, instr_count));
+                result.push_str(&format!(
+                    "\nbr i1 %{:?}, label %loop_body_{:?}, label %loop_end_{:?}",
+                    var_2, n, instr_count
+                ));
                 result.push_str(&format!("\n\nloop_end_{:?}:", instr_count));
-                
+
                 var_count += 2;
             }
             Token::Output => {
@@ -119,5 +119,5 @@ pub fn compile(tokens: Vec<Token>, mem_size: u32) {
     result.push_str("ret i32 0\n");
     result.push_str("}\n");
     result.push_str("declare i32 @printf(ptr noundef, ...)\n");
-    println!("{}", result);
+    return result;
 }
