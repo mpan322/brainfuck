@@ -111,7 +111,18 @@ pub fn compile(tokens: Vec<Token>, mem_size: u32) -> String {
 
                 var_count += 2;
             }
-            Token::Input => {}
+            Token::Input => {
+                let var_1 = var_count + 1;
+                let var_2 = var_count + 2;
+
+                result.push_str("\n; read a character from stdin");
+                // TODO: this may have odd behaviour for EOF / error
+                result.push_str(&format!("\n%{:?} = call i32 @getchar()\n", var_1));
+                result.push_str(&format!("\n%{:?} = trunc i32 %{:?} to i8", var_2, var_1));
+                result.push_str(&format!("\nstore i8 %{:?}, ptr %{:?}", var_2, data_ptr));
+
+                var_count += 2;
+            }
         }
         instr_count += 1;
     }
@@ -119,5 +130,6 @@ pub fn compile(tokens: Vec<Token>, mem_size: u32) -> String {
     result.push_str("ret i32 0\n");
     result.push_str("}\n");
     result.push_str("declare i32 @printf(ptr noundef, ...)\n");
+    result.push_str("declare i32 @getchar()\n");
     return result;
 }

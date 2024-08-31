@@ -21,7 +21,7 @@ cargo build -r
 
 ### Compiling and Running
 ```
-./brainfuck test.bf -c > output.ll; clang output.ll -o exe; ./exe
+./brainfuck test.bf -c output.ll; clang output.ll -o exe; ./exe
 ```
 
 ### Running Interpreter
@@ -30,9 +30,8 @@ cargo build -r
 ```
 
 ### TODO
-1) Write compiled output to a file rather than stdout.
-2) Add input support (just noticed I forgot that LOL).
-3) Cleanup the tokenizer a bit.
+1) Cleanup the tokenizer a bit
+2) Cleanup main file related functionality a bit
 
 
 
