@@ -10,8 +10,6 @@ mod tokens;
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
-    /// Path to the file to compile
-    #[arg(short, long)]
     path: String,
 
     /// Whether to compile the program

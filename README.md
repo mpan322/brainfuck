@@ -19,5 +19,20 @@ cargo build -r
 * The binary can be found at `target/release/brainfuck`
 * For more information on how to use the CLI run `target/release/brainfuck --help`
 
+### Compiling and Running
+```
+./brainfuck test.bf -c > output.ll; clang output.ll -o exe; ./exe
+```
+
+### Running Interpreter
+```
+./brainfuck test.bf
+```
+
+### TODO
+1) Write compiled output to a file rather than stdout.
+2) Add input support (just noticed I forgot that LOL).
+3) Cleanup the tokenizer a bit.
+
 
 
