@@ -2,12 +2,13 @@ use crate::tokens::Token;
 
 pub fn compile(tokens: Vec<Token>, mem_size: u32) {
     let buff_str = format!("[{:?} x i8]", mem_size);
+    // println!("{:?}", tokens);
 
     let mut result = String::new();
 
     // setup buffers / llvm
     result.push_str("target triple = \"x86_64-pc-linux-gnu\"\n");
-    result.push_str("@.format = constant [4 x i8] c\"%c\\0A\\00\"\n");
+    result.push_str("@.format = constant [2 x i8] c\"%c\"\n");
     result.push_str(&format!("@.buff = global {} zeroinitializer\n", &buff_str));
     result.push_str("@buff = global ptr @.buff\n");
     result.push_str("define i32 @main() {\n");
@@ -15,6 +16,7 @@ pub fn compile(tokens: Vec<Token>, mem_size: u32) {
 
     let mut data_ptr = 1;
     let mut var_count = 1;
+    let mut instr_count = 0;
     for token in tokens.iter() {
         match *token {
             Token::Inc(n) => {
@@ -25,8 +27,8 @@ pub fn compile(tokens: Vec<Token>, mem_size: u32) {
                 result.push_str("\n; increment the value\n");
                 result.push_str(&format!("%{:?} = load i8, ptr %{:?}\n", var_1, data_ptr));
                 result.push_str(&format!(
-                    "%{:?} = add nuw i8 {:?}, %{:?}\n",
-                    var_2, n, var_1
+                    "%{:?} = add i8 %{:?}, {:?}\n",
+                    var_2, var_1, n
                 ));
                 result.push_str(&format!("store i8 %{:?}, ptr %{:?}\n", var_2, data_ptr));
 
@@ -40,8 +42,8 @@ pub fn compile(tokens: Vec<Token>, mem_size: u32) {
                 result.push_str("\n; decrement the value\n");
                 result.push_str(&format!("%{:?} = load i8, ptr %{:?}\n", var_1, data_ptr));
                 result.push_str(&format!(
-                    "%{:?} = sub nuw i8 {:?}, %{:?}\n",
-                    var_2, n, var_1
+                    "%{:?} = sub i8 %{:?}, {:?}\n",
+                    var_2, var_1, n
                 ));
                 result.push_str(&format!("store i8 %{:?}, ptr %{:?}\n", var_2, data_ptr));
 
@@ -71,20 +73,47 @@ pub fn compile(tokens: Vec<Token>, mem_size: u32) {
                 data_ptr = var;
                 var_count += 1;
             }
-            Token::LBrack(_) => (),
-            Token::RBrack(_) => (),
+            Token::LBrack(n) => {
+                let var_1 = var_count + 1;
+                let var_2 = var_count + 2;
+
+                result.push_str(&format!("\n; begin loop"));
+                result.push_str(&format!("\nbr label %loop_open_{:?}", instr_count));
+                result.push_str(&format!("\n\nloop_open_{:?}:", instr_count));
+                result.push_str(&format!("\n%{:?} = load i8, ptr %{:?}", var_1, data_ptr));
+                result.push_str(&format!("\n%{:?} = icmp eq i8 %{:?}, 0", var_2, var_1));
+                result.push_str(&format!("\nbr i1 %{:?}, label %loop_end_{:?}, label %loop_body_{:?}", var_2, n - 1, instr_count));
+                result.push_str(&format!("\n\nloop_body_{:?}:", instr_count));
+
+                var_count += 2;
+            }
+            Token::RBrack(n) => {
+                let var_1 = var_count + 1;
+                let var_2 = var_count + 2;
+
+                result.push_str(&format!("\n%{:?} = load i8, ptr %{:?}", var_1, data_ptr));
+                result.push_str(&format!("\n%{:?} = icmp ne i8 %{:?}, 0", var_2, var_1));
+                result.push_str(&format!("\nbr i1 %{:?}, label %loop_body_{:?}, label %loop_end_{:?}", var_2, n, instr_count));
+                result.push_str(&format!("\n\nloop_end_{:?}:", instr_count));
+                
+                var_count += 2;
+            }
             Token::Output => {
                 let var_1 = var_count + 1;
                 let var_2 = var_count + 2;
 
                 result.push_str("\n; print under data pointer\n");
                 result.push_str(&format!("%{:?} = load i8, ptr %{:?}\n", var_1, data_ptr));
-                result.push_str(&format!("%{:?} = call i32 (ptr, ...) @printf(ptr @.format, i8 %{:?})\n", var_2, var_1));
+                result.push_str(&format!(
+                    "%{:?} = call i32 (ptr, ...) @printf(ptr @.format, i8 %{:?})\n",
+                    var_2, var_1
+                ));
 
                 var_count += 2;
             }
             Token::Input => {}
         }
+        instr_count += 1;
     }
 
     result.push_str("ret i32 0\n");
