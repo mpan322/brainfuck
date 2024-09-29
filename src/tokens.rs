@@ -34,12 +34,6 @@ fn is_valid_char(char: u8) -> bool {
     };
 }
 
-fn string_to_vec(s: &str) -> Vec<u8> {
-    let mut v = Vec::new();
-    s.chars().for_each(|c| v.push(c as u8));
-    return v;
-}
-
 impl Tokenizer {
     fn add_jumps(tokens: &mut Vec<Token>) -> () {
         let mut stack = Vec::new();
@@ -65,7 +59,7 @@ impl Tokenizer {
     }
 
     pub fn new(input: &str) -> Tokenizer {
-        let input = string_to_vec(input);
+        let input = Vec::from(input);
         let next = input.get(0);
         let next = match next {
             None => 0,
